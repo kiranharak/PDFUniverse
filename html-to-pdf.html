@@ -10,14 +10,19 @@
   <div class="container">
     <header>
       <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-      <p class="tagline">Convert any HTML content into a PDF file easily.</p>
+      <p class="tagline">Convert HTML content to a downloadable PDF file.</p>
     </header>
 
-    <textarea id="htmlContent" rows="10" style="width: 90%;" placeholder="Enter your HTML content here..."></textarea>
+    <textarea id="htmlInput" placeholder="Write your HTML here..." rows="10" style="width:90%;"></textarea>
     <br><br>
     <button onclick="generatePDF()">Generate PDF</button>
     <br><br>
-    <a id="downloadLink" style="display:none;" download="generated.pdf">Download PDF</a>
+
+    <div id="previewArea" style="border:1px solid #ccc; padding:20px; margin-top:20px; background:white;">
+      <!-- HTML Preview Will Be Rendered Here -->
+    </div>
+    <br>
+    <button id="downloadBtn" style="display:none;" onclick="downloadPDF()">Download PDF</button>
 
     <footer>
       <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
@@ -27,23 +32,27 @@
 
     <script>
       function generatePDF() {
-        const htmlContent = document.getElementById("htmlContent").value;
-        if (!htmlContent.trim()) {
-          alert("Please enter some HTML content.");
+        const htmlInput = document.getElementById('htmlInput').value;
+        const previewArea = document.getElementById('previewArea');
+        
+        if (!htmlInput.trim()) {
+          alert("Please write some HTML content first.");
           return;
         }
 
-        const container = document.createElement("div");
-        container.innerHTML = htmlContent;
-        document.body.appendChild(container);
-        container.style.display = 'none';
+        previewArea.innerHTML = htmlInput;
+        document.getElementById('downloadBtn').style.display = 'inline-block';
+      }
 
-        html2pdf()
-          .from(container)
-          .save('generated.pdf')
-          .then(() => {
-            document.body.removeChild(container);
-          });
+      function downloadPDF() {
+        const element = document.getElementById('previewArea');
+        
+        html2pdf().from(element).set({
+          margin: 10,
+          filename: 'converted.pdf',
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        }).save();
       }
     </script>
 </body>
