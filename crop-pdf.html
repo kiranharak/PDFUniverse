@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Crop PDF Pages - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Crop margins of PDF pages easily.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+
+    <input type="number" id="cropTop" class="text-input" placeholder="Crop Top (px)" />
+    <input type="number" id="cropBottom" class="text-input" placeholder="Crop Bottom (px)" />
+    <input type="number" id="cropLeft" class="text-input" placeholder="Crop Left (px)" />
+    <input type="number" id="cropRight" class="text-input" placeholder="Crop Right (px)" />
+    <br><br>
+
+    <button onclick="cropPDF()">Crop PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="cropped.pdf">Download Cropped PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function cropPDF() {
+        const input = document.getElementById("pdfInput");
+        const top = parseInt(document.getElementById("cropTop").value) || 0;
+        const bottom = parseInt(document.getElementById("cropBottom").value) || 0;
+        const left = parseInt(document.getElementById("cropLeft").value) || 0;
+        const right = parseInt(document.getElementById("cropRight").value) || 0;
+
+        if (!input.files.length) {
+          alert("Please upload a PDF file.");
+          return;
+        }
+
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        const pages = pdfDoc.getPages();
+        pages.forEach(page => {
+          const { width, height } = page.getSize();
+          page.setCropBox(left, bottom, width - left - right, height - top - bottom);
+        });
+
+        const croppedPdfBytes = await pdfDoc.save();
+        const blob = new Blob([croppedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

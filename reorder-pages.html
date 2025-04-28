@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reorder PDF Pages - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Rearrange PDF pages easily in any custom order.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+
+    <input type="text" id="pageOrder" class="text-input" placeholder="New order (e.g., 3,1,2)" />
+    <br><br>
+
+    <button onclick="reorderPages()">Reorder Pages</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="reordered.pdf">Download Reordered PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function reorderPages() {
+        const input = document.getElementById("pdfInput");
+        const orderInput = document.getElementById("pageOrder").value.trim();
+
+        if (!input.files.length || !orderInput) {
+          alert("Please upload a PDF and specify page order.");
+          return;
+        }
+
+        const newOrder = orderInput.split(",").map(num => parseInt(num.trim()) - 1); // 0-based
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        const copiedPages = await pdfDoc.copyPages(pdfDoc, newOrder);
+        const newPdf = await PDFLib.PDFDocument.create();
+        copiedPages.forEach(page => newPdf.addPage(page));
+
+        const updatedPdfBytes = await newPdf.save();
+        const blob = new Blob([updatedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

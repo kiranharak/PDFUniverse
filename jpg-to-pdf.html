@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>JPG to PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Convert JPG images into a PDF file easily and quickly.</p>
+    </header>
+
+    <input type="file" id="jpgInput" accept="image/jpeg,image/png" multiple />
+    <br><br>
+    <button onclick="convertJPGtoPDF()">Convert to PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="converted.pdf">Download PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+      async function convertJPGtoPDF() {
+        const input = document.getElementById("jpgInput");
+        if (!input.files.length) {
+          alert("Please upload one or more JPG images.");
+          return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        for (let i = 0; i < input.files.length; i++) {
+          const file = input.files[i];
+          const reader = new FileReader();
+
+          await new Promise((resolve) => {
+            reader.onload = function (e) {
+              const img = new Image();
+              img.onload = function () {
+                const width = pdf.internal.pageSize.getWidth();
+                const height = (img.height * width) / img.width;
+
+                if (i > 0) pdf.addPage();
+                pdf.addImage(img, 'JPEG', 0, 0, width, height);
+                resolve();
+              };
+              img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+
+        const blob = pdf.output('blob');
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

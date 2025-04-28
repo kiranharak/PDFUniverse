@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF to EPUB - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Convert PDF text into a simple EPUB file easily.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+    <button onclick="convertPDFtoEPUB()">Convert to EPUB</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="converted.epub">Download EPUB</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+
+    <script>
+      async function convertPDFtoEPUB() {
+        const input = document.getElementById("pdfInput");
+        if (!input.files.length) {
+          alert("Please upload a PDF file.");
+          return;
+        }
+
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = async function (event) {
+          const typedarray = new Uint8Array(event.target.result);
+          const pdf = await pdfjsLib.getDocument(typedarray).promise;
+
+          let epubContent = '<?xml version="1.0" encoding="utf-8"?>\n' +
+                             '<!DOCTYPE html>\n<html xmlns="http://www.w3.org/1999/xhtml">\n<head><title>Converted EPUB</title></head><body>';
+
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const content = await page.getTextContent();
+            const strings = content.items.map(item => item.str).join(' ');
+            epubContent += `<p>Page ${pageNum}: ${strings}</p>\n`;
+          }
+
+          epubContent += '</body></html>';
+
+          const blob = new Blob([epubContent], { type: "application/epub+zip" });
+          const url = URL.createObjectURL(blob);
+
+          const link = document.getElementById("downloadLink");
+          link.href = url;
+          link.style.display = "inline-block";
+        };
+
+        reader.readAsArrayBuffer(file);
+      }
+    </script>
+</body>
+</html>

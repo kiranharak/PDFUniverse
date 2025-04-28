@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Word to PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration: none; color: inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Convert your Word (.docx) text into a PDF file easily.</p>
+    </header>
+
+    <input type="file" id="wordInput" accept=".doc,.docx,text/plain" />
+    <br><br>
+    <button onclick="convertWordToPDF()">Convert to PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="converted.pdf">Download PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+      async function convertWordToPDF() {
+        const input = document.getElementById("wordInput");
+        if (!input.files.length) {
+          alert("Please upload a Word (.docx) file or plain text file.");
+          return;
+        }
+
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+          const textContent = event.target.result;
+
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF();
+
+          const lines = pdf.splitTextToSize(textContent, 180); // Wrap long lines
+          pdf.text(lines, 10, 20);
+
+          const blob = pdf.output('blob');
+          const url = URL.createObjectURL(blob);
+
+          const link = document.getElementById("downloadLink");
+          link.href = url;
+          link.style.display = "inline-block";
+        };
+
+        reader.readAsText(file);
+      }
+    </script>
+</body>
+</html>

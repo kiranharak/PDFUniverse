@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit PDF Metadata - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Edit PDF title, author, subject, and keywords easily.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+    <input type="text" id="title" class="text-input" placeholder="New Title" />
+    <input type="text" id="author" class="text-input" placeholder="New Author" />
+    <input type="text" id="subject" class="text-input" placeholder="New Subject" />
+    <input type="text" id="keywords" class="text-input" placeholder="New Keywords (comma-separated)" />
+    <br><br>
+    <button onclick="editMetadata()">Update Metadata</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="updated-metadata.pdf">Download Updated PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function editMetadata() {
+        const input = document.getElementById("pdfInput");
+        const title = document.getElementById("title").value;
+        const author = document.getElementById("author").value;
+        const subject = document.getElementById("subject").value;
+        const keywords = document.getElementById("keywords").value;
+
+        if (!input.files.length) {
+          alert("Please upload a PDF file.");
+          return;
+        }
+
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        if (title) pdfDoc.setTitle(title);
+        if (author) pdfDoc.setAuthor(author);
+        if (subject) pdfDoc.setSubject(subject);
+        if (keywords) pdfDoc.setKeywords(keywords.split(','));
+
+        const updatedPdfBytes = await pdfDoc.save();
+        const blob = new Blob([updatedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

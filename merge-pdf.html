@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Merge PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Merge multiple PDF files into one easily and securely.</p>
+    </header>
+
+    <input type="file" id="pdfFiles" accept="application/pdf" multiple />
+    <br><br>
+    <button onclick="mergePDFs()">Merge PDFs</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="merged.pdf">Download Merged PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script>
+      async function mergePDFs() {
+        const input = document.getElementById("pdfFiles");
+        if (!input.files.length) {
+          alert("Please upload PDF files.");
+          return;
+        }
+
+        const mergedPdf = await PDFLib.PDFDocument.create();
+        for (const file of input.files) {
+          const bytes = await file.arrayBuffer();
+          const pdf = await PDFLib.PDFDocument.load(bytes);
+          const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+          pages.forEach(page => mergedPdf.addPage(page));
+        }
+
+        const mergedBytes = await mergedPdf.save();
+        const blob = new Blob([mergedBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF Form Filler - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Fill and edit your PDF forms easily.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+
+    <input type="text" id="fieldName" class="text-input" placeholder="Field Name (Exact)" />
+    <input type="text" id="fieldValue" class="text-input" placeholder="Field Value" />
+    <br><br>
+
+    <button onclick="fillForm()">Fill Field</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="filled-form.pdf">Download Filled PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      let loadedPdfDoc;
+
+      async function loadPDF() {
+        const input = document.getElementById("pdfInput");
+        if (!input.files.length) {
+          alert("Please upload a PDF file first.");
+          return null;
+        }
+
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        return await PDFLib.PDFDocument.load(arrayBuffer);
+      }
+
+      async function fillForm() {
+        if (!loadedPdfDoc) {
+          loadedPdfDoc = await loadPDF();
+          if (!loadedPdfDoc) return;
+        }
+
+        const fieldName = document.getElementById("fieldName").value.trim();
+        const fieldValue = document.getElementById("fieldValue").value;
+
+        if (!fieldName || !fieldValue) {
+          alert("Please enter both field name and value.");
+          return;
+        }
+
+        try {
+          const form = loadedPdfDoc.getForm();
+          const field = form.getTextField(fieldName);
+          field.setText(fieldValue);
+
+          const filledPdfBytes = await loadedPdfDoc.save();
+          const blob = new Blob([filledPdfBytes], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+
+          const link = document.getElementById("downloadLink");
+          link.href = url;
+          link.style.display = "inline-block";
+        } catch (error) {
+          alert("Field not found or error filling form. Please check field name exactly.");
+        }
+      }
+    </script>
+</body>
+</html>

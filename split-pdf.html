@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Split PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Split your PDF into multiple parts easily and securely.</p>
+    </header>
+
+    <input type="file" id="pdfFile" accept="application/pdf" />
+    <br><br>
+    <input type="number" id="startPage" class="text-input" placeholder="Start Page (e.g. 1)" />
+    <input type="number" id="endPage" class="text-input" placeholder="End Page (e.g. 3)" />
+    <br><br>
+    <button onclick="splitPDF()">Split PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="split.pdf">Download Split PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script>
+      async function splitPDF() {
+        const fileInput = document.getElementById("pdfFile");
+        const startPage = parseInt(document.getElementById("startPage").value);
+        const endPage = parseInt(document.getElementById("endPage").value);
+
+        if (!fileInput.files.length || isNaN(startPage) || isNaN(endPage)) {
+          alert("Please upload a PDF and enter valid page numbers.");
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        const newPdf = await PDFLib.PDFDocument.create();
+
+        for (let i = startPage - 1; i < endPage; i++) {
+          const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+          newPdf.addPage(copiedPage);
+        }
+
+        const newBytes = await newPdf.save();
+        const blob = new Blob([newBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

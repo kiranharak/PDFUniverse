@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rotate PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration: none; color: inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Rotate your PDF pages easily clockwise or counter-clockwise.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+
+    <select id="rotateAngle" class="text-input">
+      <option value="90">Rotate 90°</option>
+      <option value="180">Rotate 180°</option>
+      <option value="270">Rotate 270°</option>
+    </select>
+    <br><br>
+
+    <button onclick="rotatePDF()">Rotate PDF</button>
+    <br><br>
+
+    <a id="downloadLink" style="display: none;" download="rotated.pdf">Download Rotated PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function rotatePDF() {
+        const input = document.getElementById("pdfInput");
+        const rotateValue = parseInt(document.getElementById("rotateAngle").value);
+
+        if (!input.files.length || isNaN(rotateValue)) {
+          alert("Please upload a PDF file and select a rotation angle.");
+          return;
+        }
+
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        const pages = pdfDoc.getPages();
+        pages.forEach(page => {
+          const currentRotation = page.getRotation().angle;
+          page.setRotation(PDFLib.degrees(currentRotation + rotateValue));
+        });
+
+        const rotatedPdfBytes = await pdfDoc.save();
+        const blob = new Blob([rotatedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const downloadLink = document.getElementById("downloadLink");
+        downloadLink.href = url;
+        downloadLink.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

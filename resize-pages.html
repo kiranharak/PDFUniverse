@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PDF Page Size Converter - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Resize your PDF pages to a standard size easily.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+    <select id="pageSize">
+      <option value="A4">A4 (595 x 842)</option>
+      <option value="Letter">Letter (612 x 792)</option>
+      <option value="Legal">Legal (612 x 1008)</option>
+    </select>
+    <br><br>
+    <button onclick="resizePDF()">Resize Pages</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="resized.pdf">Download Resized PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function resizePDF() {
+        const input = document.getElementById("pdfInput");
+        const selectedSize = document.getElementById("pageSize").value;
+
+        if (!input.files.length) {
+          alert("Please upload a PDF file.");
+          return;
+        }
+
+        let width, height;
+        if (selectedSize === "A4") { width = 595; height = 842; }
+        else if (selectedSize === "Letter") { width = 612; height = 792; }
+        else if (selectedSize === "Legal") { width = 612; height = 1008; }
+
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        const pages = pdfDoc.getPages();
+        pages.forEach(page => {
+          page.setSize(width, height);
+        });
+
+        const resizedPdfBytes = await pdfDoc.save();
+        const blob = new Blob([resizedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

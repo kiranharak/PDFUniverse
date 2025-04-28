@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Protect PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Password protect your PDF easily and securely.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+    <input type="password" id="password" class="text-input" placeholder="Enter password" />
+    <br><br>
+    <button onclick="protectPDF()">Protect PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="protected.pdf">Download Protected PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function protectPDF() {
+        const input = document.getElementById("pdfInput");
+        const password = document.getElementById("password").value;
+
+        if (!input.files.length || !password) {
+          alert("Please upload a PDF file and enter a password.");
+          return;
+        }
+
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        // NOTE: pdf-lib supports encryption only while saving
+        const protectedPdfBytes = await pdfDoc.save({
+          passwords: {
+            ownerPassword: password,
+            userPassword: password,
+            permissions: {
+              printing: 'highResolution',
+              modifying: false,
+              copying: false,
+              annotating: false,
+            }
+          }
+        });
+
+        const blob = new Blob([protectedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const downloadLink = document.getElementById("downloadLink");
+        downloadLink.href = url;
+        downloadLink.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

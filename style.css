@@ -1,0 +1,86 @@
+/* style.css */
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  color: #333;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+#toggleMode {
+  padding: 10px 20px;
+  font-size: 1rem;
+  margin-bottom: 30px;
+  cursor: pointer;
+}
+
+.tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.tool {
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  padding: 15px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.tool:hover {
+  background-color: #0056b3;
+}
+
+footer {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+body.dark-mode .tool {
+  background-color: #444;
+  color: white;
+}
+
+body.dark-mode .tool:hover {
+  background-color: #222;
+}
+
+body.dark-mode footer {
+  color: #aaa;
+}
+
+/* Optional: Animation on page load */
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+.container {
+  animation: fadeIn 1s ease-in;
+}

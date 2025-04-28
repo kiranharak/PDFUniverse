@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Excel to PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Convert Excel (.csv) files into PDF format easily.</p>
+    </header>
+
+    <input type="file" id="csvInput" accept=".csv" />
+    <br><br>
+    <button onclick="convertExcelToPDF()">Convert to PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="converted.pdf">Download PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <script>
+      async function convertExcelToPDF() {
+        const input = document.getElementById("csvInput");
+        if (!input.files.length) {
+          alert("Please upload a CSV (Excel) file.");
+          return;
+        }
+
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const csvContent = e.target.result;
+          const data = Papa.parse(csvContent.trim(), { delimiter: ",", skipEmptyLines: true }).data;
+
+          const { jsPDF } = window.jspdf;
+          const pdf = new jsPDF();
+
+          let y = 20;
+
+          data.forEach(row => {
+            pdf.text(row.join(' | '), 10, y);
+            y += 10;
+            if (y > 270) { // Page break
+              pdf.addPage();
+              y = 20;
+            }
+          });
+
+          const blob = pdf.output('blob');
+          const url = URL.createObjectURL(blob);
+
+          const link = document.getElementById("downloadLink");
+          link.href = url;
+          link.style.display = "inline-block";
+        };
+
+        reader.readAsText(file);
+      }
+    </script>
+</body>
+</html>

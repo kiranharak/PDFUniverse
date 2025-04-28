@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scan to PDF - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Scan images with your camera and save them as a PDF!</p>
+    </header>
+
+    <input type="file" id="imageInput" accept="image/*" capture="environment" multiple />
+    <br><br>
+
+    <button onclick="createPDF()">Create PDF</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="scanned.pdf">Download PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+      async function createPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        const input = document.getElementById("imageInput");
+        if (!input.files.length) {
+          alert("Please capture/upload at least one image.");
+          return;
+        }
+
+        for (let i = 0; i < input.files.length; i++) {
+          const file = input.files[i];
+          const img = new Image();
+          const url = URL.createObjectURL(file);
+
+          await new Promise((resolve) => {
+            img.onload = function () {
+              const width = pdf.internal.pageSize.getWidth();
+              const height = (img.height * width) / img.width;
+              if (i !== 0) pdf.addPage();
+              pdf.addImage(img, 'JPEG', 0, 0, width, height);
+              resolve();
+            };
+            img.src = url;
+          });
+        }
+
+        const blob = pdf.output('blob');
+        const downloadUrl = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = downloadUrl;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>

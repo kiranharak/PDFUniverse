@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Remove PDF Pages - PDFUniverse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+      <p class="tagline">Remove unwanted pages from your PDF easily.</p>
+    </header>
+
+    <input type="file" id="pdfInput" accept="application/pdf" />
+    <br><br>
+
+    <input type="text" id="pagesToRemove" class="text-input" placeholder="Pages to remove (e.g., 2,4,6)" />
+    <br><br>
+
+    <button onclick="removePages()">Remove Pages</button>
+    <br><br>
+    <a id="downloadLink" style="display:none;" download="pages-removed.pdf">Download Updated PDF</a>
+
+    <footer>
+      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+      async function removePages() {
+        const input = document.getElementById("pdfInput");
+        const pagesInput = document.getElementById("pagesToRemove").value.trim();
+
+        if (!input.files.length || !pagesInput) {
+          alert("Please upload a PDF file and specify pages to remove.");
+          return;
+        }
+
+        const pagesToRemove = pagesInput.split(",").map(num => parseInt(num.trim()) - 1); // 0-based
+        const file = input.files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+        const copiedPages = await pdfDoc.copyPages(pdfDoc, 
+          pdfDoc.getPageIndices().filter(index => !pagesToRemove.includes(index))
+        );
+
+        const newPdf = await PDFLib.PDFDocument.create();
+        copiedPages.forEach(page => newPdf.addPage(page));
+
+        const updatedPdfBytes = await newPdf.save();
+        const blob = new Blob([updatedPdfBytes], { type: "application/pdf" });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.getElementById("downloadLink");
+        link.href = url;
+        link.style.display = "inline-block";
+      }
+    </script>
+</body>
+</html>
