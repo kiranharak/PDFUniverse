@@ -4,64 +4,105 @@
   <meta charset="UTF-8" />
   <title>Protect PDF - PDFUniverse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #strengthMeter {
+      height: 6px;
+      margin-top: 5px;
+      width: 100%;
+      background: #ddd;
+      border-radius: 4px;
+    }
+    #strengthBar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .label {
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-      <p class="tagline">Password protect your PDF easily and securely.</p>
-    </header>
+<div class="container">
+  <header>
+    <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+    <p class="tagline">Add a secure password to protect your PDF file.</p>
+  </header>
 
-    <input type="file" id="pdfInput" accept="application/pdf" />
-    <br><br>
-    <input type="password" id="password" class="text-input" placeholder="Enter password" />
-    <br><br>
-    <button onclick="protectPDF()">Protect PDF</button>
-    <br><br>
-    <a id="downloadLink" style="display:none;" download="protected.pdf">Download Protected PDF</a>
+  <input type="file" id="pdfInput" accept="application/pdf" />
+  <br><br>
 
-    <footer>
-      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
-    </footer>
+  <input type="password" id="password" placeholder="Enter password" />
+  <br><br>
+  <input type="password" id="confirmPassword" placeholder="Repeat password" />
+  <div id="strengthMeter">
+    <div id="strengthBar"></div>
+  </div>
+  <div class="label" id="strengthLabel"></div>
+  <br>
+  <button onclick="protectPDF()">Protect PDF</button>
+  <br><br>
 
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <footer>
+    <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+  </footer>
 
-    <script>
-      async function protectPDF() {
-        const input = document.getElementById("pdfInput");
-        const password = document.getElementById("password").value;
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-        if (!input.files.length || !password) {
-          alert("Please upload a PDF file and enter a password.");
-          return;
-        }
+  <script>
+    const passwordInput = document.getElementById('password');
+    const confirmInput = document.getElementById('confirmPassword');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthLabel = document.getElementById('strengthLabel');
 
-        const file = input.files[0];
-        const arrayBuffer = await file.arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+      let strength = 0;
 
-        // NOTE: pdf-lib supports encryption only while saving
-        const protectedPdfBytes = await pdfDoc.save({
-          passwords: {
-            ownerPassword: password,
-            userPassword: password,
-            permissions: {
-              printing: 'highResolution',
-              modifying: false,
-              copying: false,
-              annotating: false,
-            }
-          }
-        });
+      if (val.length >= 6) strength++;
+      if (/[A-Z]/.test(val)) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[^A-Za-z0-9]/.test(val)) strength++;
 
-        const blob = new Blob([protectedPdfBytes], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
+      const percent = [0, 25, 50, 75, 100][strength];
+      strengthBar.style.width = percent + "%";
+      strengthBar.style.background = ["#ccc", "#f44336", "#ff9800", "#03a9f4", "#4caf50"][strength];
+      strengthLabel.textContent = ["", "Weak", "Medium", "Good", "Strong"][strength];
+    });
 
-        const downloadLink = document.getElementById("downloadLink");
-        downloadLink.href = url;
-        downloadLink.style.display = "inline-block";
+    async function protectPDF() {
+      const fileInput = document.getElementById('pdfInput');
+      const password = passwordInput.value;
+      const confirm = confirmInput.value;
+
+      if (!fileInput.files.length || !password || !confirm) {
+        alert("Please upload a PDF and fill in both password fields.");
+        return;
       }
-    </script>
+
+      if (password !== confirm) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+      const pdfBytes = await pdfDoc.save({ 
+        passwords: { owner: password, user: password }, 
+        encrypt: true 
+      });
+
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "protected.pdf";
+      link.click();
+    }
+  </script>
+</div>
 </body>
 </html>
