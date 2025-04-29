@@ -1,60 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Split PDF - PDFUniverse</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .page-thumb {
+      border: 2px solid #ccc;
+      padding: 4px;
+      text-align: center;
+      position: relative;
+    }
+    .highlight {
+      border-color: #007BFF;
+    }
+    canvas {
+      max-width: 150px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-      <p class="tagline">Split your PDF into multiple parts easily and securely.</p>
-    </header>
+<div class="container">
+  <header>
+    <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+    <p class="tagline">Visually split your PDF by selecting a page range.</p>
+  </header>
 
-    <input type="file" id="pdfFile" accept="application/pdf" />
-    <br><br>
-    <input type="number" id="startPage" class="text-input" placeholder="Start Page (e.g. 1)" />
-    <input type="number" id="endPage" class="text-input" placeholder="End Page (e.g. 3)" />
-    <br><br>
-    <button onclick="splitPDF()">Split PDF</button>
-    <br><br>
-    <a id="downloadLink" style="display:none;" download="split.pdf">Download Split PDF</a>
+  <input type="file" id="pdfInput" accept="application/pdf" />
+  <br><br>
 
-    <footer>
-      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
-    </footer>
+  <input type="number" id="startPage" placeholder="Start Page" min="1" />
+  <input type="number" id="endPage" placeholder="End Page" min="1" />
+  <br><br>
 
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-    <script>
-      async function splitPDF() {
-        const fileInput = document.getElementById("pdfFile");
-        const startPage = parseInt(document.getElementById("startPage").value);
-        const endPage = parseInt(document.getElementById("endPage").value);
+  <button onclick="splitPDF()">Split PDF</button>
+  <br><br>
 
-        if (!fileInput.files.length || isNaN(startPage) || isNaN(endPage)) {
-          alert("Please upload a PDF and enter valid page numbers.");
-          return;
-        }
+  <div id="preview"></div>
 
-        const file = fileInput.files[0];
-        const arrayBuffer = await file.arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-        const newPdf = await PDFLib.PDFDocument.create();
+  <footer>
+    <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+  </footer>
 
-        for (let i = startPage - 1; i < endPage; i++) {
-          const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
-          newPdf.addPage(copiedPage);
-        }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-        const newBytes = await newPdf.save();
-        const blob = new Blob([newBytes], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById("downloadLink");
-        link.href = url;
-        link.style.display = "inline-block";
+  <script>
+    let loadedPdf = null;
+    let totalPages = 0;
+
+    document.getElementById('pdfInput').addEventListener('change', async function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const arrayBuffer = await file.arrayBuffer();
+      loadedPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+
+      const pdfData = new Uint8Array(arrayBuffer);
+      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+      totalPages = pdf.numPages;
+
+      document.getElementById('startPage').max = totalPages;
+      document.getElementById('endPage').max = totalPages;
+      document.getElementById('endPage').value = totalPages;
+
+      const preview = document.getElementById('preview');
+      preview.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 0.3 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await page.render({ canvasContext: context, viewport }).promise;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'page-thumb';
+        wrapper.dataset.page = i;
+
+        wrapper.appendChild(canvas);
+        preview.appendChild(wrapper);
       }
-    </script>
+
+      document.getElementById('startPage').addEventListener('input', updateHighlight);
+      document.getElementById('endPage').addEventListener('input', updateHighlight);
+      updateHighlight();
+    });
+
+    function updateHighlight() {
+      const start = parseInt(document.getElementById('startPage').value);
+      const end = parseInt(document.getElementById('endPage').value);
+
+      document.querySelectorAll('.page-thumb').forEach(el => {
+        const page = parseInt(el.dataset.page);
+        if (page >= start && page <= end) {
+          el.classList.add('highlight');
+        } else {
+          el.classList.remove('highlight');
+        }
+      });
+    }
+
+    async function splitPDF() {
+      if (!loadedPdf) return;
+
+      const start = parseInt(document.getElementById('startPage').value);
+      const end = parseInt(document.getElementById('endPage').value);
+
+      if (isNaN(start) || isNaN(end) || start < 1 || end > totalPages || start > end) {
+        alert("Invalid page range!");
+        return;
+      }
+
+      const newPdf = await PDFLib.PDFDocument.create();
+      const indices = [];
+      for (let i = start - 1; i < end; i++) indices.push(i);
+
+      const pages = await newPdf.copyPages(loadedPdf, indices);
+      pages.forEach(p => newPdf.addPage(p));
+
+      const pdfBytes = await newPdf.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `split-pages-${start}-to-${end}.pdf`;
+      link.click();
+    }
+  </script>
+</div>
 </body>
 </html>
