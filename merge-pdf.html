@@ -1,52 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Merge PDF - PDFUniverse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .preview-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+      justify-content: center;
+    }
+    .pdf-thumb {
+      border: 2px solid #ccc;
+      padding: 5px;
+      text-align: center;
+      width: 160px;
+      background: white;
+      cursor: move;
+    }
+    canvas {
+      max-width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-      <p class="tagline">Merge multiple PDF files into one easily and securely.</p>
-    </header>
+<div class="container">
+  <header>
+    <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+    <p class="tagline">Preview, reorder and merge your PDF files visually.</p>
+  </header>
 
-    <input type="file" id="pdfFiles" accept="application/pdf" multiple />
-    <br><br>
-    <button onclick="mergePDFs()">Merge PDFs</button>
-    <br><br>
-    <a id="downloadLink" style="display:none;" download="merged.pdf">Download Merged PDF</a>
+  <input type="file" id="fileInput" accept="application/pdf" multiple />
+  <br><br>
 
-    <footer>
-      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
-    </footer>
+  <div id="preview" class="preview-container"></div>
+  <br>
+  <button onclick="mergePDFs()">Merge PDFs</button>
 
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-    <script>
-      async function mergePDFs() {
-        const input = document.getElementById("pdfFiles");
-        if (!input.files.length) {
-          alert("Please upload PDF files.");
-          return;
-        }
+  <footer>
+    <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+  </footer>
 
-        const mergedPdf = await PDFLib.PDFDocument.create();
-        for (const file of input.files) {
-          const bytes = await file.arrayBuffer();
-          const pdf = await PDFLib.PDFDocument.load(bytes);
-          const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-          pages.forEach(page => mergedPdf.addPage(page));
-        }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
-        const mergedBytes = await mergedPdf.save();
-        const blob = new Blob([mergedBytes], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById("downloadLink");
-        link.href = url;
-        link.style.display = "inline-block";
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('preview');
+    let files = [];
+
+    fileInput.addEventListener('change', async function () {
+      files = Array.from(this.files);
+      previewContainer.innerHTML = '';
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 0.3 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport }).promise;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pdf-thumb';
+        wrapper.dataset.index = i;
+        wrapper.appendChild(canvas);
+        const label = document.createElement('p');
+        label.innerText = file.name;
+        wrapper.appendChild(label);
+        previewContainer.appendChild(wrapper);
       }
-    </script>
+
+      Sortable.create(previewContainer, {
+        animation: 150
+      });
+    });
+
+    async function mergePDFs() {
+      const mergedPdf = await PDFLib.PDFDocument.create();
+      const orderedThumbs = Array.from(previewContainer.children);
+      for (const thumb of orderedThumbs) {
+        const index = parseInt(thumb.dataset.index);
+        const file = files[index];
+        const bytes = await file.arrayBuffer();
+        const pdf = await PDFLib.PDFDocument.load(bytes);
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        copiedPages.forEach(page => mergedPdf.addPage(page));
+      }
+
+      const mergedBytes = await mergedPdf.save();
+      const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'merged.pdf';
+      link.click();
+    }
+  </script>
+</div>
 </body>
 </html>
