@@ -5,61 +5,115 @@
   <title>Scan to PDF - PDFUniverse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+  <style>
+    #imagePreview {
+      max-width: 100%;
+      max-height: 60vh;
+    }
+    #canvasList img {
+      width: 150px;
+      margin: 5px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-      <p class="tagline">Scan images with your camera and save them as a PDF!</p>
+      <p class="tagline">Capture, crop, and convert to PDF like a real scanner.</p>
     </header>
 
-    <input type="file" id="imageInput" accept="image/*" capture="environment" multiple />
+    <input type="file" id="imageInput" accept="image/*" multiple capture="environment" />
     <br><br>
 
-    <button onclick="createPDF()">Create PDF</button>
+    <div>
+      <img id="imagePreview" style="display:none;" />
+    </div>
+    <br>
+    <button id="cropButton" style="display:none;" onclick="cropImage()">Crop This Image</button>
     <br><br>
-    <a id="downloadLink" style="display:none;" download="scanned.pdf">Download PDF</a>
+    <div id="canvasList"></div>
+
+    <button onclick="generatePDF()">Download PDF</button>
 
     <footer>
       <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.13/dist/cropper.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
-      async function createPDF() {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF();
+      const imageInput = document.getElementById('imageInput');
+      const imagePreview = document.getElementById('imagePreview');
+      const canvasList = document.getElementById('canvasList');
+      const cropButton = document.getElementById('cropButton');
 
-        const input = document.getElementById("imageInput");
-        if (!input.files.length) {
-          alert("Please capture/upload at least one image.");
+      let currentImageIndex = 0;
+      let images = [];
+      let cropper;
+      let croppedCanvases = [];
+
+      imageInput.addEventListener('change', function () {
+        images = Array.from(this.files);
+        currentImageIndex = 0;
+        croppedCanvases = [];
+        loadNextImage();
+      });
+
+      function loadNextImage() {
+        if (currentImageIndex >= images.length) {
+          imagePreview.style.display = "none";
+          cropButton.style.display = "none";
           return;
         }
 
-        for (let i = 0; i < input.files.length; i++) {
-          const file = input.files[i];
-          const img = new Image();
-          const url = URL.createObjectURL(file);
+        const file = images[currentImageIndex];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = "block";
+          cropButton.style.display = "inline-block";
 
-          await new Promise((resolve) => {
-            img.onload = function () {
-              const width = pdf.internal.pageSize.getWidth();
-              const height = (img.height * width) / img.width;
-              if (i !== 0) pdf.addPage();
-              pdf.addImage(img, 'JPEG', 0, 0, width, height);
-              resolve();
-            };
-            img.src = url;
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(imagePreview, {
+            aspectRatio: NaN,
+            viewMode: 1
           });
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function cropImage() {
+        const canvas = cropper.getCroppedCanvas({ maxWidth: 1200 });
+        croppedCanvases.push(canvas);
+
+        // Preview
+        const preview = document.createElement("img");
+        preview.src = canvas.toDataURL("image/jpeg");
+        canvasList.appendChild(preview);
+
+        cropper.destroy();
+        currentImageIndex++;
+        loadNextImage();
+      }
+
+      async function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        for (let i = 0; i < croppedCanvases.length; i++) {
+          const imgData = croppedCanvases[i].toDataURL("image/jpeg", 1.0);
+          const imgProps = pdf.getImageProperties(imgData);
+          const pdfWidth = pdf.internal.pageSize.getWidth();
+          const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+          if (i !== 0) pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
         }
 
-        const blob = pdf.output('blob');
-        const downloadUrl = URL.createObjectURL(blob);
-
-        const link = document.getElementById("downloadLink");
-        link.href = downloadUrl;
-        link.style.display = "inline-block";
+        pdf.save("scanned.pdf");
       }
     </script>
 </body>
