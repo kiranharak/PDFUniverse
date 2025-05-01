@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Merge PDF - PDFUniverse</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="style.css" />
@@ -16,13 +16,27 @@
     .pdf-thumb {
       border: 2px solid #ccc;
       padding: 5px;
-      text-align: center;
-      width: 160px;
       background: white;
-      cursor: move;
+      position: relative;
+      width: 160px;
     }
-    canvas {
+    .pdf-thumb canvas {
       max-width: 100%;
+    }
+    .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      background: red;
+      color: white;
+      border: none;
+      font-size: 14px;
+      padding: 2px 6px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    #mergeBtn {
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -30,15 +44,12 @@
 <div class="container">
   <header>
     <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-    <p class="tagline">Preview, reorder and merge your PDF files visually.</p>
+    <p class="tagline">Preview, reorder, and remove PDFs before merging them into one file.</p>
   </header>
 
   <input type="file" id="fileInput" accept="application/pdf" multiple />
-  <br><br>
-
   <div id="preview" class="preview-container"></div>
-  <br>
-  <button onclick="mergePDFs()">Merge PDFs</button>
+  <button id="mergeBtn" onclick="mergePDFs()" style="display:none;">Merge PDFs</button>
 
   <footer>
     <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
@@ -46,16 +57,25 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
   <script>
     const fileInput = document.getElementById('fileInput');
     const previewContainer = document.getElementById('preview');
+    const mergeBtn = document.getElementById('mergeBtn');
+
     let files = [];
 
     fileInput.addEventListener('change', async function () {
-      files = Array.from(this.files);
+      const selectedFiles = Array.from(this.files);
+      files = files.concat(selectedFiles);
+      renderPreviews();
+    });
+
+    async function renderPreviews() {
       previewContainer.innerHTML = '';
+      if (files.length === 0) {
+        mergeBtn.style.display = 'none';
+        return;
+      }
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
@@ -72,24 +92,26 @@
         const wrapper = document.createElement('div');
         wrapper.className = 'pdf-thumb';
         wrapper.dataset.index = i;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.textContent = '✖';
+        removeBtn.className = 'remove-btn';
+        removeBtn.onclick = () => {
+          files.splice(i, 1);
+          renderPreviews();
+        };
+
+        wrapper.appendChild(removeBtn);
         wrapper.appendChild(canvas);
-        const label = document.createElement('p');
-        label.innerText = file.name;
-        wrapper.appendChild(label);
         previewContainer.appendChild(wrapper);
       }
 
-      Sortable.create(previewContainer, {
-        animation: 150
-      });
-    });
+      mergeBtn.style.display = files.length > 1 ? 'inline-block' : 'none';
+    }
 
     async function mergePDFs() {
       const mergedPdf = await PDFLib.PDFDocument.create();
-      const orderedThumbs = Array.from(previewContainer.children);
-      for (const thumb of orderedThumbs) {
-        const index = parseInt(thumb.dataset.index);
-        const file = files[index];
+      for (const file of files) {
         const bytes = await file.arrayBuffer();
         const pdf = await PDFLib.PDFDocument.load(bytes);
         const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
