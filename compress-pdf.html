@@ -1,54 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Compress PDF - PDFUniverse</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .preview-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .preview-container canvas {
+      max-width: 300px;
+      margin-bottom: 10px;
+    }
+    .size-info {
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .slider {
+      width: 60%;
+      margin: 15px auto;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
-      <p class="tagline">Reduce your PDF file size while maintaining quality.</p>
-    </header>
+<div class="container">
+  <header>
+    <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
+    <p class="tagline">Compress PDF with quality control and instant preview!</p>
+  </header>
 
-    <input type="file" id="pdfInput" accept="application/pdf" />
-    <br><br>
-    <button onclick="compressPDF()">Compress PDF</button>
-    <br><br>
-    <a id="downloadLink" style="display:none;" download="compressed.pdf">Download Compressed PDF</a>
+  <input type="file" id="pdfInput" accept="application/pdf" />
+  <div class="preview-container">
+    <canvas id="canvasPreview" style="display:none;"></canvas>
+    <div class="size-info" id="sizeInfo"></div>
+    <div class="slider" style="display:none;">
+      <label for="qualityRange">Compression Quality: <span id="qualityValue">80%</span></label><br>
+      <input type="range" id="qualityRange" min="30" max="100" value="80">
+    </div>
+    <button id="downloadBtn" onclick="compressPDF()" style="display:none;">Download Compressed PDF</button>
+  </div>
 
-    <footer>
-      <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
-    </footer>
+  <footer>
+    <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+  </footer>
 
-    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-    <script>
-      async function compressPDF() {
-        const input = document.getElementById("pdfInput");
-        if (!input.files.length) {
-          alert("Please upload a PDF file.");
-          return;
-        }
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
-        const file = input.files[0];
-        const arrayBuffer = await file.arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+  <script>
+    const pdfInput = document.getElementById('pdfInput');
+    const canvas = document.getElementById('canvasPreview');
+    const sizeInfo = document.getElementById('sizeInfo');
+    const qualityRange = document.getElementById('qualityRange');
+    const qualityValue = document.getElementById('qualityValue');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const sliderBox = document.querySelector('.slider');
 
-        // Remove metadata, useless objects (basic compression simulation)
-        pdfDoc.setTitle('');
-        pdfDoc.setAuthor('');
-        pdfDoc.setSubject('');
-        pdfDoc.setKeywords([]);
+    let originalFile;
+    let loadedPdf;
 
-        const compressedBytes = await pdfDoc.save({ useObjectStreams: true });
-        const blob = new Blob([compressedBytes], { type: "application/pdf" });
-        const url = URL.createObjectURL(blob);
-        const link = document.getElementById("downloadLink");
-        link.href = url;
-        link.style.display = "inline-block";
+    qualityRange.addEventListener('input', () => {
+      qualityValue.textContent = qualityRange.value + "%";
+    });
+
+    pdfInput.addEventListener('change', async function () {
+      const file = this.files[0];
+      if (!file) return;
+
+      originalFile = file;
+      const arrayBuffer = await file.arrayBuffer();
+      loadedPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+
+      const pdfData = new Uint8Array(arrayBuffer);
+      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 0.5 });
+      canvas.style.display = "block";
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext('2d');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // Show original size
+      sizeInfo.innerHTML = `Original PDF size: ${(file.size / 1024).toFixed(2)} KB`;
+      sliderBox.style.display = 'block';
+      downloadBtn.style.display = 'inline-block';
+    });
+
+    async function compressPDF() {
+      const quality = parseInt(qualityRange.value) / 100;
+
+      const newPdf = await PDFLib.PDFDocument.create();
+      const pageCount = loadedPdf.getPageCount();
+
+      for (let i = 0; i < pageCount; i++) {
+        const [copiedPage] = await newPdf.copyPages(loadedPdf, [i]);
+        const pageWidth = copiedPage.getWidth();
+        const pageHeight = copiedPage.getHeight();
+
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = pageWidth;
+        pageCanvas.height = pageHeight;
+        const context = pageCanvas.getContext('2d');
+
+        const tempArrayBuffer = await originalFile.arrayBuffer();
+        const tempPdf = await pdfjsLib.getDocument({ data: tempArrayBuffer }).promise;
+        const pdfPage = await tempPdf.getPage(i + 1);
+        const viewport = pdfPage.getViewport({ scale: 1 });
+
+        await pdfPage.render({ canvasContext: context, viewport }).promise;
+
+        const imgData = pageCanvas.toDataURL('image/jpeg', quality);
+        const imgEmbed = await newPdf.embedJpg(imgData);
+        const page = newPdf.addPage([pageWidth, pageHeight]);
+        page.drawImage(imgEmbed, { x: 0, y: 0, width: pageWidth, height: pageHeight });
       }
-    </script>
+
+      const compressedBytes = await newPdf.save();
+      const blob = new Blob([compressedBytes], { type: 'application/pdf' });
+      const sizeKB = (blob.size / 1024).toFixed(2);
+
+      sizeInfo.innerHTML += `<br>Compressed PDF size: ${sizeKB} KB`;
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'compressed.pdf';
+      link.click();
+    }
+  </script>
+</div>
 </body>
 </html>
