@@ -4,146 +4,135 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rotate PDF - PDFUniverse</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <link rel="stylesheet" href="style.css"/>
   <style>
     .preview-container {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
       justify-content: center;
-      margin-top: 20px;
     }
     .page-preview {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .rotate-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background-color: #444;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-      z-index: 2;
-    }
-    .rotate-left {
-      left: -50px;
-    }
-    .rotate-right {
-      right: -50px;
-    }
-    .angle-label {
-      margin-top: 8px;
-      font-size: 14px;
-      color: #333;
-    }
-    canvas {
+      width: 30%;
       border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+    }
+    .page-preview img {
+      max-width: 100%;
+      max-height: 400px;
+      transition: transform 0.3s ease;
+    }
+    .rotate-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .rotate-buttons button {
+      padding: 5px 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1><a href="index.html" style="color: white; text-decoration: none;">PDFUniverse</a></h1>
+    <h1><a href="index.html" style="text-decoration:none; color:inherit;">PDFUniverse</a></h1>
   </header>
 
   <main>
-    <h2>Rotate PDF</h2>
-    <input type="file" id="pdfFile" accept="application/pdf"/>
+    <h2>Rotate PDF Pages</h2>
+    <input type="file" id="pdfUpload" accept="application/pdf"/>
+    <div id="previewArea" class="preview-container"></div>
     <button onclick="downloadRotatedPDF()">Download Rotated PDF</button>
-
-    <div class="preview-container" id="previewContainer"></div>
   </main>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/pdfjs-dist/build/pdf.min.js"></script>
   <script>
+    const previewArea = document.getElementById('previewArea');
     let pdfDoc = null;
-    let rotationAngles = [];
-    let fileBuffer = null;
+    let pageRotations = [];
 
-    document.getElementById("pdfFile").addEventListener("change", async function(e) {
+    document.getElementById('pdfUpload').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      fileBuffer = await file.arrayBuffer();
-      pdfDoc = await pdfjsLib.getDocument({ data: fileBuffer }).promise;
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
+        const loadingTask = pdfjsLib.getDocument({ data: typedarray });
+        pdfDoc = await loadingTask.promise;
 
-      rotationAngles = Array(pdfDoc.numPages).fill(0);
-      renderPreviewPages();
+        const arrayBuffer = await file.arrayBuffer();
+        const pdfLibDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+        pageRotations = Array(pdfLibDoc.getPageCount()).fill(0);
+
+        previewArea.innerHTML = '';
+        for (let i = 0; i < pdfDoc.numPages; i++) {
+          const page = await pdfDoc.getPage(i + 1);
+          const viewport = page.getViewport({ scale: 1.5 });
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const context = canvas.getContext('2d');
+
+          await page.render({ canvasContext: context, viewport }).promise;
+
+          const img = document.createElement('img');
+          img.src = canvas.toDataURL();
+          img.dataset.index = i;
+
+          const preview = document.createElement('div');
+          preview.className = 'page-preview';
+          preview.appendChild(img);
+
+          const buttons = document.createElement('div');
+          buttons.className = 'rotate-buttons';
+
+          const rotateLeft = document.createElement('button');
+          rotateLeft.textContent = '⟲ Rotate Left';
+          rotateLeft.onclick = () => rotatePage(i, -90, img);
+
+          const rotateRight = document.createElement('button');
+          rotateRight.textContent = 'Rotate Right ⟳';
+          rotateRight.onclick = () => rotatePage(i, 90, img);
+
+          buttons.appendChild(rotateLeft);
+          buttons.appendChild(rotateRight);
+          preview.appendChild(buttons);
+
+          previewArea.appendChild(preview);
+        }
+      };
+      reader.readAsArrayBuffer(file);
     });
 
-    async function renderPreviewPages() {
-      const container = document.getElementById("previewContainer");
-      container.innerHTML = "";
-
-      for (let i = 1; i <= pdfDoc.numPages; i++) {
-        const page = await pdfDoc.getPage(i);
-        const viewport = page.getViewport({ scale: 0.5 });
-
-        const canvas = document.createElement("canvas");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        const context = canvas.getContext("2d");
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-        };
-
-        await page.render(renderContext).promise;
-
-        const pageDiv = document.createElement("div");
-        pageDiv.classList.add("page-preview");
-
-        const rotateLeftBtn = document.createElement("button");
-        rotateLeftBtn.className = "rotate-btn rotate-left";
-        rotateLeftBtn.innerText = "⟲";
-        rotateLeftBtn.onclick = () => rotatePage(i - 1, -90);
-
-        const rotateRightBtn = document.createElement("button");
-        rotateRightBtn.className = "rotate-btn rotate-right";
-        rotateRightBtn.innerText = "⟳";
-        rotateRightBtn.onclick = () => rotatePage(i - 1, 90);
-
-        const angleLabel = document.createElement("div");
-        angleLabel.className = "angle-label";
-        angleLabel.innerText = "0°";
-        angleLabel.id = `angle-${i - 1}`;
-
-        pageDiv.appendChild(rotateLeftBtn);
-        pageDiv.appendChild(canvas);
-        pageDiv.appendChild(rotateRightBtn);
-        pageDiv.appendChild(angleLabel);
-
-        container.appendChild(pageDiv);
-      }
-    }
-
-    function rotatePage(index, angle) {
-      rotationAngles[index] = (rotationAngles[index] + angle + 360) % 360;
-      document.getElementById(`angle-${index}`).innerText = `${rotationAngles[index]}°`;
+    function rotatePage(index, degree, imgElement) {
+      pageRotations[index] = (pageRotations[index] + degree + 360) % 360;
+      imgElement.style.transform = `rotate(${pageRotations[index]}deg)`;
     }
 
     async function downloadRotatedPDF() {
-      const existingPdfBytes = fileBuffer;
-      const pdfDocLib = await PDFLib.PDFDocument.load(existingPdfBytes);
-      const pages = pdfDocLib.getPages();
+      const file = document.getElementById('pdfUpload').files[0];
+      if (!file) return alert("Please upload a PDF first.");
 
-      pages.forEach((page, index) => {
-        page.setRotation(PDFLib.degrees(rotationAngles[index]));
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+      pdfDoc.getPages().forEach((page, i) => {
+        page.setRotation(PDFLib.degrees(pageRotations[i] || 0));
       });
 
-      const pdfBytes = await pdfDocLib.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "rotated.pdf";
-      link.click();
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'rotated.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
