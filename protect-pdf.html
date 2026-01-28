@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Protect PDF - Add Password to PDF online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- PROTECTION WORKSPACE --- */
+        #protectWorkspace {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-sub);
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .password-input:focus { border-color: var(--brand-red); }
+
+        /* Strength Meter */
+        #strengthMeter {
+            height: 6px;
+            background: #eee;
+            border-radius: 10px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        #strengthBar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        #strengthLabel {
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .btn-action {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover { background-color: var(--brand-dark); transform: translateY(-2px); }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Protect PDF</h1>
+            <p>Encrypt your PDF with a password to prevent unauthorized access.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="protectWorkspace">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px; color: #555;">
+                <i class="fa-solid fa-file-pdf" style="color: #e74c3c; font-size: 20px;"></i>
+                <span id="fileNameDisplay" style="font-weight: 600;">document.pdf</span>
+            </div>
+
+            <div class="input-group">
+                <label>Set Password</label>
+                <input type="password" id="password" class="password-input" placeholder="Type your password" />
+                <div id="strengthMeter">
+                    <div id="strengthBar"></div>
+                </div>
+                <div id="strengthLabel"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Confirm Password</label>
+                <input type="password" id="confirmPassword" class="password-input" placeholder="Repeat your password" />
+            </div>
+
+            <button class="btn-action" onclick="protectPDF()">
+                Protect PDF
+            </button>
+            <a id="downloadLink" style="display:none;" download="protected_PDFUniverse.pdf"></a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById("pdfInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const workspace = document.getElementById("protectWorkspace");
+        const fileNameDisplay = document.getElementById("fileNameDisplay");
+        const passwordInput = document.getElementById("password");
+        const strengthBar = document.getElementById("strengthBar");
+        const strengthLabel = document.getElementById("strengthLabel");
+
+        pdfInput.addEventListener("change", (e) => {
+            if (e.target.files[0]) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+                uploadBox.style.display = "none";
+                workspace.style.display = "block";
+            }
+        });
+
+        // Password Strength Logic
+        passwordInput.addEventListener("input", () => {
+            const val = passwordInput.value;
+            let strength = 0;
+            if (val.length >= 8) strength++;
+            if (/[A-Z]/.test(val)) strength++;
+            if (/[0-9]/.test(val)) strength++;
+            if (/[^A-Za-z0-9]/.test(val)) strength++;
+
+            const colors = ["#eee", "#f44336", "#ff9800", "#2196f3", "#4caf50"];
+            const labels = ["", "WEAK", "MEDIUM", "GOOD", "STRONG"];
+            const widths = ["0%", "25%", "50%", "75%", "100%"];
+
+            strengthBar.style.width = widths[strength];
+            strengthBar.style.backgroundColor = colors[strength];
+            strengthLabel.textContent = labels[strength];
+            strengthLabel.style.color = colors[strength];
+        });
+
+        async function protectPDF() {
+            const pass = passwordInput.value;
+            const confirm = document.getElementById("confirmPassword").value;
+
+            if (!pdfInput.files[0] || !pass) {
+                alert("Please select a file and enter a password.");
+                return;
+            }
+
+            if (pass !== confirm) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            const file = pdfInput.files[0];
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+            // Apply protection
+            const pdfBytes = await pdfDoc.save({
+                userPassword: pass,
+                ownerPassword: pass,
+                permissions: {
+                    printing: 'highResolution',
+                    modifying: false,
+                    copying: false,
+                    annotating: false,
+                    fillingForms: false,
+                    contentAccessibility: true,
+                    documentAssembly: false
+                }
+            });
+
+            const blob = new Blob([pdfBytes], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById("downloadLink");
+            link.href = url;
+            link.click();
+        }
+    </script>
+</body>
+</html>

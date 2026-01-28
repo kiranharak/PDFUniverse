@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Reorder PDF Pages - Sort PDF Pages Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- REORDER WORKSPACE --- */
+        #workspace {
+            display: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-download {
+            background-color: #28a745;
+            color: white;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+            transition: 0.2s;
+        }
+
+        .btn-download:hover { transform: translateY(-2px); background-color: #218838; }
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+
+        .page-thumb {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            cursor: grab;
+            position: relative;
+            transition: transform 0.2s;
+            border: 1px solid #eee;
+        }
+
+        .page-thumb:active { cursor: grabbing; }
+
+        .page-thumb canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #f0f0f0;
+            margin-bottom: 8px;
+        }
+
+        .page-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-sub);
+            background: #f8f9fa;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .sortable-ghost {
+            opacity: 0.4;
+            border: 2px dashed var(--brand-red);
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Reorder PDF Pages</h1>
+            <p>Sort the pages of your PDF file however you like. Drag and drop the page thumbnails to rearrange them.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-layer-group"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="workspace">
+            <div class="controls">
+                <button class="btn-download" onclick="downloadReorderedPDF()">
+                    <i class="fa-solid fa-file-export"></i> Save & Download
+                </button>
+            </div>
+            <div id="pagesGrid" class="page-grid"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById('pdfInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const workspace = document.getElementById('workspace');
+        const pagesGrid = document.getElementById('pagesGrid');
+
+        let loadedPdf = null;
+
+        pdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadBox.style.display = 'none';
+            workspace.style.display = 'block';
+            pagesGrid.innerHTML = '<p style="text-align:center; width:100%;">Generating thumbnails...</p>';
+
+            const arrayBuffer = await file.arrayBuffer();
+            loadedPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+            
+            const pdfJS = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            pagesGrid.innerHTML = '';
+
+            for (let i = 1; i <= pdfJS.numPages; i++) {
+                const page = await pdfJS.getPage(i);
+                const viewport = page.getViewport({ scale: 0.4 });
+                
+                const thumb = document.createElement('div');
+                thumb.className = 'page-thumb';
+                thumb.dataset.index = i - 1;
+                thumb.innerHTML = `
+                    <canvas id="canvas-${i-1}"></canvas>
+                    <div class="page-number">Page ${i}</div>
+                `;
+                pagesGrid.appendChild(thumb);
+
+                const canvas = document.getElementById(`canvas-${i-1}`);
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                await page.render({ canvasContext: context, viewport }).promise;
+            }
+
+            // Initialize Drag & Drop
+            new Sortable(pagesGrid, {
+                animation: 250,
+                ghostClass: 'sortable-ghost',
+                forceFallback: true
+            });
+        });
+
+        async function downloadReorderedPDF() {
+            if (!loadedPdf) return;
+
+            // Get current order from the DOM
+            const reorderedIndices = Array.from(document.querySelectorAll('.page-thumb'))
+                                          .map(el => parseInt(el.dataset.index));
+
+            const newPdf = await PDFLib.PDFDocument.create();
+            const copiedPages = await newPdf.copyPages(loadedPdf, reorderedIndices);
+            copiedPages.forEach(page => newPdf.addPage(page));
+
+            const pdfBytes = await newPdf.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'reordered_PDFUniverse.pdf';
+            link.click();
+        }
+    </script>
+</body>
+</html>

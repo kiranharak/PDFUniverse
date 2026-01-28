@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>OCR PDF - Extract Text from Scanned PDF Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 60px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 45px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- OCR WORKSPACE --- */
+        #ocrWorkspace {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .progress-card {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--brand-red);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .output-area {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .text-result {
+            width: 100%;
+            height: 300px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: #fafafa;
+            resize: none;
+            margin-bottom: 20px;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 15px;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>OCR PDF</h1>
+            <p>Convert scanned PDF documents into searchable and editable text files.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-eye"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop scanned PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="ocrWorkspace">
+            <div id="loadingState" class="progress-card">
+                <div class="loader"></div>
+                <h2 id="statusText">Reading PDF...</h2>
+                <p style="color: #666; margin-top: 10px;">Converting pages to images for text recognition.</p>
+            </div>
+
+            <div id="outputArea" class="output-area">
+                <h3 style="margin-bottom: 15px;">Extracted Text</h3>
+                <textarea id="textOutput" class="text-result" readonly></textarea>
+                <div class="action-bar">
+                    <button class="btn-select" onclick="downloadText()">
+                        <i class="fa-solid fa-download"></i> Download .txt
+                    </button>
+                    <button class="btn-select" style="background: #333;" onclick="location.reload()">
+                        Start Over
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById("pdfInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const ocrWorkspace = document.getElementById("ocrWorkspace");
+        const statusText = document.getElementById("statusText");
+        const loadingState = document.getElementById("loadingState");
+        const outputArea = document.getElementById("outputArea");
+        const textOutput = document.getElementById("textOutput");
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.worker.min.js';
+
+        pdfInput.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadBox.style.display = "none";
+            ocrWorkspace.style.display = "block";
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = "";
+
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    statusText.textContent = `Processing Page ${i} of ${pdf.numPages}...`;
+                    
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+                    // Tesseract OCR
+                    const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
+                    fullText += `--- Page ${i} ---\n${text}\n\n`;
+                }
+
+                textOutput.value = fullText;
+                loadingState.style.display = "none";
+                outputArea.style.display = "block";
+
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred during OCR processing.");
+                location.reload();
+            }
+        });
+
+        function downloadText() {
+            const blob = new Blob([textOutput.value], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "extracted_text_PDFUniverse.txt";
+            a.click();
+        }
+    </script>
+</body>
+</html>

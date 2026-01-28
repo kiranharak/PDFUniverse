@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Scan to PDF - Document Scanner Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet"/>
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tool-header h1 { font-size: 32px; margin-bottom: 10px; }
+        .tool-header p { font-size: 16px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- SCANNER WORKSPACE --- */
+        #scannerWorkspace {
+            display: none;
+            gap: 20px;
+            grid-template-columns: 1fr 300px;
+        }
+
+        .editor-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .cropper-container {
+            max-height: 500px;
+            margin-bottom: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #imageToCrop { max-width: 100%; display: block; }
+
+        .sidebar {
+            background: #fff;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h3 { font-size: 14px; color: var(--text-sub); margin-bottom: 15px; text-transform: uppercase; }
+
+        #canvasList {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        #canvasList img {
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .btn-action {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-secondary {
+            background-color: #333;
+            color: white;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            #scannerWorkspace { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Scan to PDF</h1>
+            <p>Turn your photos or camera captures into high-quality PDF documents.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('imageInput').click()">
+            <i class="fa-solid fa-camera"></i>
+            <div>
+                <button class="btn-select">Capture or Upload Images</button>
+                <p style="margin-top:15px; color:#666;">Use your camera or select local photos</p>
+            </div>
+            <input type="file" id="imageInput" accept="image/*" multiple capture="environment" style="display:none;" />
+        </div>
+
+        <div id="scannerWorkspace">
+            <div class="editor-card">
+                <div class="cropper-container">
+                    <img id="imageToCrop" />
+                </div>
+                <button class="btn-select" onclick="cropAndNext()">
+                    <i class="fa-solid fa-crop-simple"></i> Crop & Add Page
+                </button>
+            </div>
+
+            <div class="sidebar">
+                <h3>Pages Scanned</h3>
+                <div id="canvasList"></div>
+                
+                <div style="margin-top: auto;">
+                    <button id="generateBtn" class="btn-action" style="display:none;" onclick="generatePDF()">
+                        <i class="fa-solid fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn-secondary" onclick="location.reload()">
+                        <i class="fa-solid fa-rotate-left"></i> Start Over
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const workspace = document.getElementById('scannerWorkspace');
+        const imageToCrop = document.getElementById('imageToCrop');
+        const canvasList = document.getElementById('canvasList');
+        const generateBtn = document.getElementById('generateBtn');
+
+        let cropper;
+        let imageFiles = [];
+        let currentFileIndex = 0;
+        let croppedCanvases = [];
+
+        imageInput.addEventListener('change', (e) => {
+            imageFiles = Array.from(e.target.files);
+            if (imageFiles.length > 0) {
+                uploadBox.style.display = 'none';
+                workspace.style.display = 'grid';
+                loadCurrentFile();
+            }
+        });
+
+        function loadCurrentFile() {
+            if (currentFileIndex >= imageFiles.length) {
+                workspace.innerHTML = `<div class="editor-card" style="grid-column: 1 / -1;">
+                    <i class="fa-solid fa-check-circle" style="font-size: 60px; color: #2ecc71; margin-bottom: 20px;"></i>
+                    <h2>All images processed!</h2>
+                    <p>Click "Generate PDF" in the sidebar to finish.</p>
+                </div>`;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imageToCrop.src = e.target.result;
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(imageToCrop, {
+                    viewMode: 1,
+                    autoCropArea: 0.9,
+                    responsive: true
+                });
+            };
+            reader.readAsDataURL(imageFiles[currentFileIndex]);
+        }
+
+        function cropAndNext() {
+            const canvas = cropper.getCroppedCanvas({ maxWidth: 1600 });
+            croppedCanvases.push(canvas);
+
+            // Add thumbnail to sidebar
+            const thumb = document.createElement('img');
+            thumb.src = canvas.toDataURL('image/jpeg', 0.7);
+            canvasList.appendChild(thumb);
+
+            // Update Progress
+            currentFileIndex++;
+            generateBtn.style.display = 'block';
+            loadCurrentFile();
+        }
+
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+
+            for (let i = 0; i < croppedCanvases.length; i++) {
+                if (i > 0) pdf.addPage();
+                
+                const imgData = croppedCanvases[i].toDataURL('image/jpeg', 0.95);
+                const imgProps = pdf.getImageProperties(imgData);
+                
+                // Fit image to A4 page
+                const ratio = Math.min(pageWidth / imgProps.width, pageHeight / imgProps.height);
+                const w = imgProps.width * ratio;
+                const h = imgProps.height * ratio;
+                const x = (pageWidth - w) / 2;
+                const y = (pageHeight - h) / 2;
+
+                pdf.addImage(imgData, 'JPEG', x, y, w, h);
+            }
+
+            pdf.save('scanned_document_PDFUniverse.pdf');
+        }
+    </script>
+</body>
+</html>

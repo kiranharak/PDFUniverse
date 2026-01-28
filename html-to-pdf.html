@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>HTML to PDF - Professional Web to PDF Converter - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tool-header h1 { font-size: 32px; margin-bottom: 10px; }
+        .tool-header p { font-size: 16px; color: var(--text-sub); }
+
+        /* --- EDITOR LAYOUT --- */
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 850px) {
+            .editor-layout { grid-template-columns: 1fr; height: auto; }
+        }
+
+        .pane {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        .pane-header {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #777;
+            text-transform: uppercase;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        textarea {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            resize: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        #previewArea {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fff;
+        }
+
+        /* --- ACTIONS --- */
+        .action-bar {
+            text-align: center;
+        }
+
+        .btn-convert {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 15px rgba(227, 59, 46, 0.3);
+        }
+
+        .btn-convert:hover { background-color: var(--brand-dark); transform: translateY(-2px); }
+        .btn-convert i { margin-right: 10px; }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>HTML to PDF</h1>
+            <p>Convert your code or web snippets into a high-quality PDF document instantly.</p>
+        </div>
+
+        <div class="editor-layout">
+            <div class="pane">
+                <div class="pane-header">
+                    <span><i class="fa-solid fa-code"></i> HTML Input</span>
+                </div>
+                <textarea id="htmlInput" placeholder="Paste or write your HTML here..." oninput="updatePreview()">
+<div style="text-align:center; padding: 50px; font-family: Arial;">
+    <h1 style="color: #E33B2E;">Hello PDFUniverse!</h1>
+    <p>This is a sample HTML document being converted to PDF.</p>
+    <hr>
+    <p>You can use <b>inline CSS</b> to style your document.</p>
+</div>
+                </textarea>
+            </div>
+
+            <div class="pane">
+                <div class="pane-header">
+                    <span><i class="fa-solid fa-magnifying-glass"></i> Live Preview</span>
+                </div>
+                <div id="previewArea"></div>
+            </div>
+        </div>
+
+        <div class="action-bar">
+            <button class="btn-convert" onclick="downloadPDF()">
+                <i class="fa-solid fa-file-pdf"></i> Download PDF
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        const htmlInput = document.getElementById('htmlInput');
+        const previewArea = document.getElementById('previewArea');
+
+        // Initial preview render
+        window.onload = updatePreview;
+
+        function updatePreview() {
+            const content = htmlInput.value;
+            previewArea.innerHTML = content;
+        }
+
+        function downloadPDF() {
+            const element = previewArea;
+            
+            if (!htmlInput.value.trim()) {
+                alert("Please enter some HTML content first.");
+                return;
+            }
+
+            const options = {
+                margin:       [10, 10],
+                filename:     'converted_PDFUniverse.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Using the bundle library
+            html2pdf().set(options).from(element).save();
+        }
+    </script>
+</body>
+</html>

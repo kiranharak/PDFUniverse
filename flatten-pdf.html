@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Flatten PDF - Secure Form Fields & Annotations - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 60px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 45px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* --- LOADING STATE --- */
+        #loadingState {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--brand-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- SUCCESS STATE --- */
+        #successState {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 50px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #2ecc71;
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: #eef2f7;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 25px;
+            text-align: left;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Flatten PDF</h1>
+            <p>Make form fields and annotations permanent to prevent further editing.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-layer-group"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="loadingState">
+            <div class="spinner"></div>
+            <h2>Flattening Document...</h2>
+            <p style="color: var(--text-sub);">Merging layers and securing form data.</p>
+        </div>
+
+        <div id="successState">
+            <i class="fa-solid fa-circle-check success-icon"></i>
+            <h2>PDF Flattened!</h2>
+            <p style="color: var(--text-sub); margin-bottom: 20px;">Your document is now read-only and secured.</p>
+            
+            <div class="info-box">
+                <i class="fa-solid fa-circle-info" style="color: var(--brand-red); font-size: 20px;"></i>
+                <span>Flattening converts interactive elements like checkboxes and text fields into static graphic elements.</span>
+            </div>
+
+            <a id="downloadLink" class="btn-select">Download Flattened PDF</a>
+            
+            <div style="margin-top: 25px;">
+                <button onclick="location.reload()" style="background:none; border:none; color:var(--brand-red); font-weight:600; cursor:pointer;">
+                    Flatten another file
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById('pdfInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const loadingState = document.getElementById('loadingState');
+        const successState = document.getElementById('successState');
+        const downloadLink = document.getElementById('downloadLink');
+
+        pdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadBox.style.display = 'none';
+            loadingState.style.display = 'block';
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+                
+                // Perform Flattening
+                const form = pdfDoc.getForm();
+                form.flatten();
+
+                
+
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+
+                downloadLink.href = url;
+                downloadLink.download = `flattened_${file.name}`;
+
+                // Artificial delay for better UX feel
+                setTimeout(() => {
+                    loadingState.style.display = 'none';
+                    successState.style.display = 'block';
+                }, 1500);
+
+            } catch (err) {
+                console.error(err);
+                alert("Could not flatten this PDF. It may already be secured.");
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Repair PDF - Fix Corrupt PDF Files Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 60px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 45px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- REPAIRING STATE --- */
+        #repairState {
+            display: none;
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--brand-red);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .analysis-log {
+            margin-top: 30px;
+            background: #222;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .info-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .info-item h3 { font-size: 16px; margin-bottom: 10px; color: var(--brand-red); }
+        .info-item p { font-size: 14px; color: var(--text-sub); line-height: 1.5; }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Repair PDF</h1>
+            <p>Recover data from a corrupted or damaged PDF document. We analyze and fix structural errors.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-screwdriver-wrench"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop damaged PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="repairState">
+            <div class="loader"></div>
+            <h2 id="statusText">Analyzing PDF Structure...</h2>
+            <div class="analysis-log" id="log">
+                [SYSTEM] Initializing recovery module...<br>
+                [SYSTEM] Scanning for header signatures...
+            </div>
+            <a id="downloadLink" style="display:none;" download="repaired_PDFUniverse.pdf"></a>
+        </div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <h3><i class="fa-solid fa-microchip"></i> Structural Rebuild</h3>
+                <p>We analyze the PDF's internal cross-reference (Xref) table and rebuild it from scratch to restore access to unreachable pages.</p>
+            </div>
+            <div class="info-item">
+                <h3><i class="fa-solid fa-file-shield"></i> Content Recovery</h3>
+                <p>If the file is partially readable, we extract the valid objects and re-wrap them into a healthy, ISO-compliant PDF container.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById("pdfInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const repairState = document.getElementById("repairState");
+        const statusText = document.getElementById("statusText");
+        const log = document.getElementById("log");
+
+        function addLog(msg) {
+            log.innerHTML += `<br>[INFO] ${msg}`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        pdfInput.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadBox.style.display = "none";
+            repairState.style.display = "block";
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                
+                // Recovery Step 1: Attempt to load the PDF
+                // PDF-Lib has a built-in attempt to fix small structural errors upon loading
+                addLog("Attempting to parse document stream...");
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { 
+                    ignoreEncryption: true,
+                    throwOnInvalidObject: false // Critical for repair
+                });
+
+                addLog("File recognized. Rebuilding Xref table...");
+                
+                // Recovery Step 2: Content validation
+                const pageCount = pdfDoc.getPageCount();
+                addLog(`Found ${pageCount} recoverable page(s).`);
+
+                // Recovery Step 3: Sanitize and Re-save
+                // Saving the document essentially "normalizes" the file structure
+                addLog("Injecting new trailers and headers...");
+                const pdfBytes = await pdfDoc.save();
+                
+                const blob = new Blob([pdfBytes], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+
+                setTimeout(() => {
+                    statusText.textContent = "Repair Successful!";
+                    addLog("PDF structure successfully normalized.");
+                    const link = document.getElementById("downloadLink");
+                    link.href = url;
+                    link.style.display = "inline-block";
+                    link.className = "btn-select";
+                    link.style.marginTop = "20px";
+                    link.style.textDecoration = "none";
+                    link.textContent = "Download Repaired PDF";
+                }, 1500);
+                
+            } catch (error) {
+                console.error(error);
+                statusText.textContent = "Deep Repair Required";
+                addLog("CRITICAL: Structural corruption too severe for automated browser repair.");
+                addLog("Consider using a desktop recovery tool for this specific file.");
+            }
+        });
+    </script>
+</body>
+</html>

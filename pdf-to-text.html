@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>PDF to Text - Extract Text from PDF Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 60px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 45px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- WORKSPACE --- */
+        #workspace {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .loader-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background: #eee;
+            height: 12px;
+            border-radius: 6px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--brand-red);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        textarea {
+            width: 100%;
+            height: 350px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 15px;
+            resize: none;
+            margin-bottom: 25px;
+            background: #fcfcfc;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .btn-secondary {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>PDF to Text</h1>
+            <p>Extract every word from your PDF and save it as a clean text file.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-file-lines"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="workspace">
+            <div id="loadingState" class="loader-container">
+                <h2 id="statusText">Reading PDF...</h2>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p id="pageCounter" style="color: var(--text-sub);">Processing page 0 of 0</p>
+            </div>
+
+            <div id="resultArea" style="display: none;">
+                <textarea id="textOutput" readonly></textarea>
+                <div class="action-grid">
+                    <button class="btn-select" onclick="downloadText()">
+                        <i class="fa-solid fa-download"></i> Download .txt
+                    </button>
+                    <button class="btn-secondary" onclick="copyToClipboard()">
+                        <i class="fa-solid fa-copy"></i> Copy to Clipboard
+                    </button>
+                </div>
+                <button onclick="location.reload()" style="margin-top: 20px; width: 100%; background: none; border: none; color: var(--brand-red); font-weight: 600; cursor: pointer;">
+                    Convert another file
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById("pdfInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const workspace = document.getElementById("workspace");
+        const loadingState = document.getElementById("loadingState");
+        const resultArea = document.getElementById("resultArea");
+        const progressFill = document.getElementById("progressFill");
+        const pageCounter = document.getElementById("pageCounter");
+        const textOutput = document.getElementById("textOutput");
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.worker.min.js';
+
+        pdfInput.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            uploadBox.style.display = "none";
+            workspace.style.display = "block";
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const totalPages = pdf.numPages;
+                let extractedText = "";
+
+                
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const percent = Math.round((i / totalPages) * 100);
+                    progressFill.style.width = percent + "%";
+                    pageCounter.textContent = `Processing page ${i} of ${totalPages}`;
+
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    const pageText = content.items.map(item => item.str).join(' ');
+                    
+                    extractedText += `--- Page ${i} ---\n${pageText}\n\n`;
+                }
+
+                textOutput.value = extractedText;
+                loadingState.style.display = "none";
+                resultArea.style.display = "block";
+
+            } catch (err) {
+                console.error(err);
+                alert("An error occurred while extracting text.");
+                location.reload();
+            }
+        });
+
+        function downloadText() {
+            const blob = new Blob([textOutput.value], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "extracted_text_PDFUniverse.txt";
+            a.click();
+        }
+
+        function copyToClipboard() {
+            textOutput.select();
+            document.execCommand('copy');
+            alert("Text copied to clipboard!");
+        }
+    </script>
+</body>
+</html>

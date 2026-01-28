@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compress PDF - Reduce PDF file size online - PDFUniverse</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- COMPRESSION BLOCKS --- */
+        #output {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .pdf-block {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 25px;
+            align-items: center;
+        }
+
+        @media (max-width: 600px) {
+            .pdf-block { grid-template-columns: 1fr; text-align: center; }
+        }
+
+        .preview-side canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+
+        .control-side {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .filename { font-weight: 700; font-size: 18px; color: var(--text-main); }
+
+        .size-info { font-size: 14px; color: var(--text-sub); }
+
+        .slider-container { margin: 10px 0; }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            border-radius: 5px;
+            outline: none;
+            accent-color: var(--brand-red);
+        }
+
+        .btn-download {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            align-self: flex-start;
+            transition: 0.2s;
+        }
+
+        .btn-download:hover { background-color: var(--brand-dark); }
+        .btn-download:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Compress PDF</h1>
+            <p>Reduce file size while optimizing for maximal PDF quality.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-compress"></i>
+            <div>
+                <button class="btn-select">Select PDF files</button>
+                <p style="margin-top:15px; color:#666;">or drop PDFs here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" multiple style="display:none;" />
+        </div>
+
+        <div id="output"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.13.216/pdf.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById('pdfInput');
+        const output = document.getElementById('output');
+        const uploadBox = document.getElementById('uploadBox');
+
+        pdfInput.addEventListener('change', async function () {
+            const files = Array.from(this.files);
+            if (files.length > 0) uploadBox.style.display = 'none';
+
+            for (const file of files) {
+                const block = document.createElement('div');
+                block.className = 'pdf-block';
+
+                // Preview Thumbnail Section
+                const previewSide = document.createElement('div');
+                previewSide.className = 'preview-side';
+                const canvas = document.createElement('canvas');
+                previewSide.appendChild(canvas);
+                block.appendChild(previewSide);
+
+                // Controls Section
+                const controlSide = document.createElement('div');
+                controlSide.className = 'control-side';
+
+                const fileName = document.createElement('div');
+                fileName.className = 'filename';
+                fileName.textContent = file.name;
+                controlSide.appendChild(fileName);
+
+                const sizeInfo = document.createElement('div');
+                sizeInfo.className = 'size-info';
+                sizeInfo.innerHTML = `<i class="fa-solid fa-file-pdf"></i> Original: ${(file.size / 1024).toFixed(2)} KB`;
+                controlSide.appendChild(sizeInfo);
+
+                const sliderLabel = document.createElement('label');
+                sliderLabel.style.fontSize = "14px";
+                sliderLabel.innerHTML = 'Compression Quality: <strong class="q-val">80%</strong>';
+                controlSide.appendChild(sliderLabel);
+
+                const slider = document.createElement('input');
+                slider.type = 'range';
+                slider.min = 30;
+                slider.max = 100;
+                slider.value = 80;
+                slider.className = 'slider';
+                slider.oninput = () => { block.querySelector('.q-val').textContent = slider.value + "%"; };
+                controlSide.appendChild(slider);
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'btn-download';
+                downloadBtn.innerHTML = '<i class="fa-solid fa-download"></i> Compress & Download';
+                
+                downloadBtn.onclick = async () => {
+                    downloadBtn.disabled = true;
+                    downloadBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Compressing...';
+                    
+                    const compressedBlob = await compressPDF(file, parseInt(slider.value));
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(compressedBlob);
+                    link.download = 'compressed_' + file.name;
+                    link.click();
+
+                    sizeInfo.innerHTML += ` <span style="color: #28a745; margin-left:10px;">➔ Compressed: ${(compressedBlob.size / 1024).toFixed(2)} KB</span>`;
+                    downloadBtn.innerHTML = '<i class="fa-solid fa-check"></i> Download Again';
+                    downloadBtn.disabled = false;
+                };
+
+                controlSide.appendChild(downloadBtn);
+                block.appendChild(controlSide);
+                output.appendChild(block);
+
+                // Render thumbnail for the file
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+                const page = await pdf.getPage(1);
+                const viewport = page.getViewport({ scale: 0.4 });
+                const ctx = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: ctx, viewport }).promise;
+            }
+        });
+
+        async function compressPDF(file, qualityPercent) {
+            const quality = qualityPercent / 100;
+            const newPdf = await PDFLib.PDFDocument.create();
+            const originalBuffer = await file.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(originalBuffer);
+            const pageCount = pdfDoc.getPageCount();
+
+            for (let i = 0; i < pageCount; i++) {
+                const [copiedPage] = await newPdf.copyPages(pdfDoc, [i]);
+                const width = copiedPage.getWidth();
+                const height = copiedPage.getHeight();
+
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = width * 0.4;
+                tempCanvas.height = height * 0.4;
+                const ctx = tempCanvas.getContext('2d');
+
+                const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(originalBuffer) }).promise;
+                const page = await pdf.getPage(i + 1);
+                const viewport = page.getViewport({ scale: 0.4 });
+                await page.render({ canvasContext: ctx, viewport }).promise;
+
+                const imgData = tempCanvas.toDataURL('image/jpeg', quality);
+                const image = await newPdf.embedJpg(imgData);
+                const newPage = newPdf.addPage([width, height]);
+                newPage.drawImage(image, { x: 0, y: 0, width, height });
+            }
+
+            const pdfBytes = await newPdf.save();
+            return new Blob([pdfBytes], { type: 'application/pdf' });
+        }
+    </script>
+</body>
+</html>

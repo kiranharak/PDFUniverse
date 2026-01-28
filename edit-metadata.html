@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit PDF Metadata - Change PDF Properties Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 60px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 45px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* --- METADATA EDITOR --- */
+        #editorWorkspace {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--brand-red);
+        }
+
+        .action-bar {
+            border-top: 1px solid #eee;
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Edit PDF Metadata</h1>
+            <p>Modify document properties like Title, Author, and Keywords for better organization.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-tags"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="editorWorkspace">
+            <h3 style="margin-bottom: 25px; border-bottom: 2px solid var(--brand-red); display: inline-block; padding-bottom: 5px;">Document Info</h3>
+            
+            <div class="form-grid">
+                <div class="input-group">
+                    <label><i class="fa-solid fa-heading"></i> Title</label>
+                    <input type="text" id="title" placeholder="e.g. Annual Report 2024">
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-user"></i> Author</label>
+                    <input type="text" id="author" placeholder="e.g. John Doe">
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-bookmark"></i> Subject</label>
+                    <input type="text" id="subject" placeholder="e.g. Financial Overview">
+                </div>
+                <div class="input-group">
+                    <label><i class="fa-solid fa-key"></i> Keywords</label>
+                    <input type="text" id="keywords" placeholder="e.g. report, finance, pdf (comma separated)">
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button onclick="location.reload()" style="background:none; border:none; color:var(--text-sub); cursor:pointer; font-weight:600;">Cancel</button>
+                <button class="btn-select" onclick="updateMetadata()">Update & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById('pdfInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const editorWorkspace = document.getElementById('editorWorkspace');
+        let originalBuffer;
+
+        pdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            originalBuffer = await file.arrayBuffer();
+            
+            // Try to load existing metadata
+            try {
+                const pdfDoc = await PDFLib.PDFDocument.load(originalBuffer);
+                document.getElementById('title').value = pdfDoc.getTitle() || "";
+                document.getElementById('author').value = pdfDoc.getAuthor() || "";
+                document.getElementById('subject').value = pdfDoc.getSubject() || "";
+                document.getElementById('keywords').value = pdfDoc.getKeywords() || "";
+            } catch (err) { console.warn("Could not pre-fill metadata."); }
+
+            uploadBox.style.display = 'none';
+            editorWorkspace.style.display = 'block';
+        });
+
+        async function updateMetadata() {
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const subject = document.getElementById('subject').value;
+            const keywords = document.getElementById('keywords').value;
+
+            const pdfDoc = await PDFLib.PDFDocument.load(originalBuffer);
+            
+            pdfDoc.setTitle(title);
+            pdfDoc.setAuthor(author);
+            pdfDoc.setSubject(subject);
+            pdfDoc.setKeywords(keywords.split(',').map(k => k.trim()));
+
+            // Update modification date
+            pdfDoc.setModificationDate(new Date());
+
+            const pdfBytes = await pdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'updated_metadata_PDFUniverse.pdf';
+            a.click();
+        }
+    </script>
+</body>
+</html>

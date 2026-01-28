@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>PDF Form Filler - Fill PDF Forms Online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 80px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 60px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 16px 45px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* --- WORKSPACE --- */
+        #editorWorkspace {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label { font-size: 13px; font-weight: 600; color: var(--text-sub); }
+
+        input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .btn-add {
+            background: #f0f0f0;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 25px;
+            transition: background 0.2s;
+        }
+
+        .btn-add:hover { background: #e0e0e0; }
+
+        .action-footer {
+            border-top: 1px solid #eee;
+            padding-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>PDF Form Filler</h1>
+            <p>Type into PDF forms and save your changes instantly.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-file-signature"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="editorWorkspace">
+            <div style="margin-bottom: 20px;">
+                <h3 style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-list-check" style="color: var(--brand-red);"></i>
+                    Form Fields to Fill
+                </h3>
+            </div>
+
+            
+
+            <div id="fieldsContainer">
+                <div class="field-row">
+                    <div class="input-group">
+                        <label>Field Name (e.g. "Full_Name")</label>
+                        <input type="text" class="fname" placeholder="Enter ID">
+                    </div>
+                    <div class="input-group">
+                        <label>Value to Insert</label>
+                        <input type="text" class="fval" placeholder="Enter text">
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+
+            <button class="btn-add" onclick="addFieldRow()">
+                <i class="fa-solid fa-plus"></i> Add Another Field
+            </button>
+
+            <div class="action-footer">
+                <button onclick="location.reload()" style="background:none; border:none; color:var(--text-sub); cursor:pointer; font-weight:600;">Cancel</button>
+                <button class="btn-select" onclick="processForm()">Apply & Download</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById('pdfInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const editorWorkspace = document.getElementById('editorWorkspace');
+        const fieldsContainer = document.getElementById('fieldsContainer');
+        let originalBuffer;
+
+        pdfInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            originalBuffer = await file.arrayBuffer();
+            uploadBox.style.display = 'none';
+            editorWorkspace.style.display = 'block';
+        });
+
+        function addFieldRow() {
+            const div = document.createElement('div');
+            div.className = 'field-row';
+            div.innerHTML = `
+                <div class="input-group">
+                    <input type="text" class="fname" placeholder="Field ID">
+                </div>
+                <div class="input-group">
+                    <input type="text" class="fval" placeholder="Value">
+                </div>
+                <button onclick="this.parentElement.remove()" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:18px; padding-bottom:12px;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+            fieldsContainer.appendChild(div);
+        }
+
+        async function processForm() {
+            try {
+                const pdfDoc = await PDFLib.PDFDocument.load(originalBuffer);
+                const form = pdfDoc.getForm();
+                
+                const names = document.querySelectorAll('.fname');
+                const values = document.querySelectorAll('.fval');
+
+                names.forEach((nameEl, index) => {
+                    const name = nameEl.value.trim();
+                    const value = values[index].value;
+                    if (name) {
+                        try {
+                            const field = form.getTextField(name);
+                            field.setText(value);
+                        } catch (e) {
+                            console.warn(`Field "${name}" not found in this PDF.`);
+                        }
+                    }
+                });
+
+                const pdfBytes = await pdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'filled_form_PDFUniverse.pdf';
+                a.click();
+            } catch (err) {
+                alert("Error processing the form. Ensure the field names match exactly.");
+            }
+        }
+    </script>
+</body>
+</html>

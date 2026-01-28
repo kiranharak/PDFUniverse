@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Unlock PDF - Remove PDF Password online - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- UNLOCK FORM --- */
+        #unlockForm {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .password-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .password-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .password-input:focus { border-color: var(--brand-red); }
+
+        .btn-unlock {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 50px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .btn-unlock:hover { background-color: var(--brand-dark); }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>Unlock PDF</h1>
+            <p>Remove PDF password security, giving you the freedom to use your PDF as you want.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-lock-open"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="unlockForm">
+            <div class="file-info">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span id="fileNameDisplay">document.pdf</span>
+            </div>
+            
+            <div class="password-container">
+                <i class="fa-solid fa-key"></i>
+                <input type="password" id="password" class="password-input" placeholder="Enter document password" />
+            </div>
+
+            <button class="btn-unlock" onclick="unlockPDF()">
+                Unlock PDF
+            </button>
+            <a id="downloadLink" style="display:none;" download="unlocked_PDFUniverse.pdf"></a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById("pdfInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const unlockForm = document.getElementById("unlockForm");
+        const fileNameDisplay = document.getElementById("fileNameDisplay");
+
+        pdfInput.addEventListener("change", (e) => {
+            if (e.target.files[0]) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+                uploadBox.style.display = "none";
+                unlockForm.style.display = "block";
+            }
+        });
+
+        async function unlockPDF() {
+            const password = document.getElementById("password").value;
+
+            if (!pdfInput.files[0] || !password) {
+                alert("Please enter the password to unlock the file.");
+                return;
+            }
+
+            try {
+                const file = pdfInput.files[0];
+                const arrayBuffer = await file.arrayBuffer();
+                
+                // Try to load the PDF with the provided password
+                const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer, { 
+                    password: password,
+                    ignoreEncryption: false 
+                });
+
+                const unlockedBytes = await pdfDoc.save();
+                const blob = new Blob([unlockedBytes], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+
+                const link = document.getElementById("downloadLink");
+                link.href = url;
+                link.click();
+                
+                alert("PDF successfully unlocked!");
+            } catch (error) {
+                alert("Incorrect password. Please try again.");
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

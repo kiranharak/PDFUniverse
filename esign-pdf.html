@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>eSign PDF - Digital Signature Tool - PDFUniverse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- SIGNATURE WORKSPACE --- */
+        #signWorkspace {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .canvas-container {
+            border: 2px solid #eee;
+            background: #fdfdfd;
+            border-radius: 8px;
+            display: inline-block;
+            margin-bottom: 20px;
+            cursor: crosshair;
+        }
+
+        canvas { display: block; }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ccc;
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-outline:hover { background: #f5f5f5; }
+
+        .btn-action {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+        .btn-action:hover { background-color: var(--brand-dark); transform: scale(1.02); }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>eSign PDF</h1>
+            <p>The easiest way to sign your PDF documents with a legally binding digital signature.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pdfInput').click()">
+            <i class="fa-solid fa-pen-nib"></i>
+            <div>
+                <button class="btn-select">Select PDF file</button>
+                <p style="margin-top:15px; color:#666;">or drop PDF here</p>
+            </div>
+            <input type="file" id="pdfInput" accept="application/pdf" style="display:none;" />
+        </div>
+
+        <div id="signWorkspace">
+            <h3 style="margin-bottom: 10px;">Draw your signature</h3>
+            <p style="color:#888; margin-bottom: 20px; font-size: 14px;">Sign inside the box below</p>
+            
+            <div class="canvas-container">
+                <canvas id="signaturePad" width="500" height="200"></canvas>
+            </div>
+
+            <div class="controls">
+                <button class="btn-outline" onclick="clearSignature()">
+                    <i class="fa-solid fa-eraser"></i> Clear
+                </button>
+            </div>
+
+            <button class="btn-action" onclick="signPDF()">
+                Sign & Download PDF
+            </button>
+            <a id="downloadLink" style="display:none;" download="signed_PDFUniverse.pdf"></a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+
+    <script>
+        const pdfInput = document.getElementById("pdfInput");
+        const uploadBox = document.getElementById("uploadBox");
+        const signWorkspace = document.getElementById("signWorkspace");
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        
+        let drawing = false;
+
+        // --- File Upload Logic ---
+        pdfInput.addEventListener("change", (e) => {
+            if (e.target.files[0]) {
+                uploadBox.style.display = "none";
+                signWorkspace.style.display = "block";
+            }
+        });
+
+        // --- Drawing Logic ---
+        canvas.addEventListener('mousedown', (e) => {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (drawing) {
+                ctx.lineTo(e.offsetX, e.offsetY);
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 2;
+                ctx.lineCap = "round";
+                ctx.stroke();
+            }
+        });
+
+        window.addEventListener('mouseup', () => { drawing = false; });
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- PDF Processing ---
+        async function signPDF() {
+            const file = pdfInput.files[0];
+            if (!file) return;
+
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+
+            // Convert canvas to image
+            const pngUrl = canvas.toDataURL("image/png");
+            const pngImageBytes = await fetch(pngUrl).then(res => res.arrayBuffer());
+            const pngImage = await pdfDoc.embedPng(pngImageBytes);
+
+            // Get last page (standard for signatures)
+            const pages = pdfDoc.getPages();
+            const lastPage = pages[pages.length - 1];
+            const { width, height } = lastPage.getSize();
+
+            // Draw signature image on PDF
+            lastPage.drawImage(pngImage, {
+                x: width - 220, // Bottom right placement
+                y: 50,
+                width: 200,
+                height: 80,
+            });
+
+            const signedPdfBytes = await pdfDoc.save();
+            const blob = new Blob([signedPdfBytes], { type: "application/pdf" });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.getElementById("downloadLink");
+            link.href = url;
+            link.click();
+        }
+    </script>
+</body>
+</html>

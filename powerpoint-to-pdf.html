@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPT to PDF - Convert PowerPoint to PDF online - PDFUniverse</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-red: #E33B2E;
+            --brand-dark: #C5291E;
+            --bg-body: #F4F7FA;
+            --text-main: #333333;
+            --text-sub: #666666;
+            --border-radius: 12px;
+            --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+        
+        .logo i, .logo span { color: var(--brand-red); }
+
+        /* --- TOOL CONTENT --- */
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            width: 100%;
+            flex: 1;
+        }
+
+        .tool-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tool-header h1 { font-size: 36px; margin-bottom: 10px; }
+        .tool-header p { font-size: 18px; color: var(--text-sub); }
+
+        /* --- UPLOAD AREA --- */
+        .upload-area {
+            background: white;
+            border: 2px dashed #ccc;
+            border-radius: var(--border-radius);
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .upload-area:hover { border-color: var(--brand-red); }
+        .upload-area i { font-size: 50px; color: var(--brand-red); margin-bottom: 20px; }
+
+        .btn-select {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* --- CONVERSION AREA --- */
+        #conversionArea {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .file-info i { font-size: 24px; color: #D04423; } /* PPT Orange/Red icon */
+
+        .btn-convert {
+            background-color: var(--brand-red);
+            color: white;
+            padding: 15px 50px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-convert:hover { background-color: var(--brand-dark); transform: scale(1.02); }
+        .btn-convert:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
+            color: var(--brand-red);
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        footer {
+            background: #33333b;
+            color: #babcbf;
+            padding: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-heart"></i>
+                PDF<span>Universe</span>
+            </a>
+        </div>
+    </header>
+
+    <div class="tool-container">
+        <div class="tool-header">
+            <h1>PowerPoint to PDF</h1>
+            <p>Make your PPT and PPTX presentations easy to view by converting them to PDF.</p>
+        </div>
+
+        <div id="uploadBox" class="upload-area" onclick="document.getElementById('pptInput').click()">
+            <i class="fa-solid fa-file-powerpoint"></i>
+            <div>
+                <button class="btn-select">Select PowerPoint files</button>
+                <p style="margin-top:15px; color:#666;">or drop PowerPoints here</p>
+            </div>
+            <input type="file" id="pptInput" accept=".pptx" style="display:none;" />
+        </div>
+
+        <div id="conversionArea">
+            <div class="file-info">
+                <i class="fa-solid fa-file-lines"></i>
+                <span id="fileNameDisplay" style="font-weight: 600;"></span>
+            </div>
+            <button id="convertBtn" class="btn-convert" onclick="convertPPTtoPDF()">
+                Convert to PDF
+            </button>
+            <br>
+            <a id="downloadLink" download="converted_PDFUniverse.pdf">
+                <i class="fa-solid fa-download"></i> Download your PDF
+            </a>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 PDFUniverse. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        const pptInput = document.getElementById('pptInput');
+        const uploadBox = document.getElementById('uploadBox');
+        const conversionArea = document.getElementById('conversionArea');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const convertBtn = document.getElementById('convertBtn');
+        const downloadLink = document.getElementById('downloadLink');
+
+        pptInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            fileNameDisplay.textContent = file.name;
+            uploadBox.style.display = 'none';
+            conversionArea.style.display = 'block';
+            downloadLink.style.display = 'none';
+            convertBtn.disabled = false;
+            convertBtn.innerHTML = 'Convert to PDF';
+        });
+
+        async function convertPPTtoPDF() {
+            const file = pptInput.files[0];
+            if (!file) return;
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Converting...';
+
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+            const reader = new FileReader();
+
+            reader.onload = async function (e) {
+                try {
+                    const zip = await JSZip.loadAsync(e.target.result);
+                    const slides = Object.keys(zip.files).filter(name => name.match(/^ppt\/slides\/slide[0-9]+\.xml$/));
+
+                    for (let i = 0; i < slides.length; i++) {
+                        const slideContent = await zip.files[slides[i]].async("text");
+                        const textMatches = slideContent.match(/<a:t>(.*?)<\/a:t>/g);
+
+                        if (i > 0) pdf.addPage();
+
+                        if (textMatches) {
+                            const text = textMatches.map(t => t.replace(/<\/?a:t>/g, '')).join(' ');
+                            const lines = pdf.splitTextToSize(text, 180);
+                            pdf.text(lines, 10, 20);
+                        }
+                    }
+
+                    const blob = pdf.output('blob');
+                    const url = URL.createObjectURL(blob);
+
+                    downloadLink.href = url;
+                    downloadLink.style.display = "inline-block";
+                    convertBtn.innerHTML = '<i class="fa-solid fa-check"></i> Conversion Finished';
+                } catch (error) {
+                    console.error(error);
+                    alert("An error occurred during conversion.");
+                    convertBtn.disabled = false;
+                    convertBtn.innerHTML = 'Convert to PDF';
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>
